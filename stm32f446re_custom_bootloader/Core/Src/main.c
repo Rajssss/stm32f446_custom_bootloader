@@ -251,14 +251,20 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 static void bl_uart_read_data(void)
 {
-
+	printf(TAG_D "Hello World from bootloader!\r\n");
 }
 
 static void bl_jump_to_user_app(void)
 {
 	void (*userapp_reset_handler) (void);
 
-	uint32_t msp_val = FLASH_SECTOR_2_BASE_ADDRESS;
+	uint32_t msp_val = *(volatile uint32_t*)FLASH_SECTOR_2_BASE_ADDRESS;
+	printf(TAG_D "starting user app at %#lX\r\n", msp_val);
+	__set_MSP(msp_val);
+
+	uint32_t tmp = *(volatile uint32_t*) (FLASH_SECTOR_2_BASE_ADDRESS + 4);
+	userapp_reset_handler = (void *) tmp;
+	userapp_reset_handler();
 }
 /* USER CODE END 4 */
 

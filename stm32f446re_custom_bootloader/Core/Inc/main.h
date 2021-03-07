@@ -42,7 +42,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+#define		TAG_D	"[D]:"
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
