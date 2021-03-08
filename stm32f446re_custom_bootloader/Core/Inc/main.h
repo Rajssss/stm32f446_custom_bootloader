@@ -33,6 +33,9 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "retarget_stdio.h"
+#include "bl_config.h"
+#include <stdint.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -47,11 +50,6 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define 	FLASH_SECTOR_2_BASE_ADDRESS		0x08008000
-
-#define 	BL_DEBUG_PORT						//enable UART debug port
-#define 	UART_DEBUG_PORT		&huart2			//use UART2 as debug port
-#define 	UART_CMD_PORT		&huart3			//use UART3 as command port
 
 /* USER CODE END EM */
 
@@ -59,7 +57,18 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void bootloader_handle_getver_cmd(uint8_t *pBuff);
+void bootloader_handle_gethelp_cmd(uint8_t *pBuff);
+void bootloader_handle_getcid_cmd(uint8_t *pBuff);
+void bootloader_handle_getrdp_cmd(uint8_t *pBuff);
+void bootloader_handle_go_cmd(uint8_t *pBuff);
+void bootloader_handle_flash_erase_cmd(uint8_t *pBuff);
+void bootloader_handle_mem_write_cmd(uint8_t *pBuff);
+void bootloader_handle_en_rw_protect(uint8_t *pBuff);
+void bootloader_handle_mem_read (uint8_t *pBuff);
+void bootloader_handle_read_sector_protection_status(uint8_t *pBuff);
+void bootloader_handle_read_otp(uint8_t *pBuff);
+void bootloader_handle_dis_rw_protect(uint8_t *pBuff);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
