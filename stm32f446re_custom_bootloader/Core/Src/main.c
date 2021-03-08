@@ -39,6 +39,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
+
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
@@ -51,6 +53,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 static void bl_jump_to_user_app(void);
 static void bl_uart_read_data(void);
@@ -58,7 +61,7 @@ static void bl_uart_read_data(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t bl_buffer[200];
 /* USER CODE END 0 */
 
 /**
@@ -91,15 +94,20 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 #ifdef BL_DEBUG_PORT
   RetargetInit(UART_DEBUG_PORT);
 #endif
   /* USER CODE END 2 */
-  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
-	  bl_uart_read_data();
-  } else {
-	  bl_jump_to_user_app();
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -147,6 +155,32 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
+
 }
 
 /**
@@ -249,15 +283,92 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/*
+ * 					 	Bootloader UART Read Handler
+ *
+ * @fn: 		- 	bl_uart_read_data
+ *
+ * @brief		-	This function will receive commands from UART and
+ * 					perform specific operation based on it.
+ *
+ * @return		-	void
+ *
+ * @Note		-
+ *
+ */
 static void bl_uart_read_data(void)
 {
-	printf(TAG_D "Hello World from bootloader!\r\n");
+	uint8_t cmd_len = 0;
+
+	while(1) {
+		memset(bl_buffer, 0, 200);
+
+		HAL_UART_Receive(UART_CMD_PORT, bl_buffer, 1, HAL_MAX_DELAY);
+		cmd_len = bl_buffer[0];
+		HAL_UART_Receive(UART_CMD_PORT, bl_buffer, cmd_len, HAL_MAX_DELAY);
+
+		switch(bl_buffer[1]) {
+		case BL_GET_VER:
+			bootloader_handle_getver_cmd(bl_buffer);
+			break;
+		case BL_GET_HELP:
+			bootloader_handle_gethelp_cmd(bl_buffer);
+			break;
+		case BL_GET_CID:
+			bootloader_handle_getcid_cmd(bl_buffer);
+			break;
+		case BL_GET_RDP_STATUS:
+			bootloader_handle_getrdp_cmd(bl_buffer);
+			break;
+		case BL_GO_TO_ADDR:
+			bootloader_handle_go_cmd(bl_buffer);
+			break;
+		case BL_FLASH_ERASE:
+			bootloader_handle_flash_erase_cmd(bl_buffer);
+			break;
+		case BL_MEM_WRITE:
+			bootloader_handle_mem_write_cmd(bl_buffer);
+			break;
+		case BL_EN_RW_PROTECT:
+			bootloader_handle_en_rw_protect(bl_buffer);
+			break;
+		case BL_MEM_READ:
+			bootloader_handle_mem_read(bl_buffer);
+			break;
+		case BL_READ_SECTOR_P_STATUS:
+			bootloader_handle_read_sector_protection_status(bl_buffer);
+			break;
+		case BL_OTP_READ:
+			bootloader_handle_read_otp(bl_buffer);
+			break;
+		case BL_DIS_R_W_PROTECT:
+			bootloader_handle_dis_rw_protect(bl_buffer);
+			break;
+		default:
+			printf(TAG_D "Invalid command code received from host, try again.\r\n");
+			break;
+		}
+	}
 }
 
+/*
+ * 					 	Bootloader jump to user application
+ *
+ * @fn: 		- 	bl_jump_to_user_app
+ *
+ * @brief		-	Setup Master Stack Pointer and jump to user application (reset_handler).
+ *
+ * @return		-	void
+ *
+ * @Note		-
+ *
+ */
 static void bl_jump_to_user_app(void)
 {
 	void (*userapp_reset_handler) (void);
 
+	//User app is stored from Sector 2 of flash.
 	uint32_t msp_val = *(volatile uint32_t*)FLASH_SECTOR_2_BASE_ADDRESS;
 	printf(TAG_D "starting user app at %#lX\r\n", msp_val);
 	__set_MSP(msp_val);
