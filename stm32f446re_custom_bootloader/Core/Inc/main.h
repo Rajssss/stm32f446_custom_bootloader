@@ -74,7 +74,7 @@ void bootloader_handle_read_sector_protection_status(uint8_t *pBuff);
 void bootloader_handle_read_otp(uint8_t *pBuff);
 void bootloader_handle_dis_rw_protect(uint8_t *pBuff);
 
-uint8_t bootloder_verify_crc(uint8_t *pBuff, uint32_t len, uint32_t crc_val_host);
+uint8_t bootloader_verify_crc(uint8_t *pData, uint32_t len, uint32_t crc_host);
 void bootloader_send_ack(uint8_t cmd_code, uint8_t follow_len);
 void bootloader_send_nack(void);
 void bootloader_uart_write_data(uint8_t *pBuff,uint32_t len);
