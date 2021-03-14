@@ -46,6 +46,7 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 #define		TAG_D	"[D]:"
+#define 	BL_VERSION		0x10
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -73,9 +74,11 @@ void bootloader_handle_read_sector_protection_status(uint8_t *pBuff);
 void bootloader_handle_read_otp(uint8_t *pBuff);
 void bootloader_handle_dis_rw_protect(uint8_t *pBuff);
 
-static uint8_t bootloder_verify_crc(uint8_t *pBuff, uint32_t len, uint32_t crc_val_host);
-static void bootloader_send_ack(uint8_t cmd_code, uint8_t follow_len);
-static void bootloader_send_ack(void);
+uint8_t bootloder_verify_crc(uint8_t *pBuff, uint32_t len, uint32_t crc_val_host);
+void bootloader_send_ack(uint8_t cmd_code, uint8_t follow_len);
+void bootloader_send_ack(void);
+void bootloader_uart_write_data(uint8_t *pBuff,uint32_t len);
+uint8_t bootloader_get_version(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
