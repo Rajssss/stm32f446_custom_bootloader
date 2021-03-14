@@ -69,4 +69,16 @@
 		BL_MEM_WRITE,
 		BL_READ_SECTOR_P_STATUS};*/
 
+/*
+ * Bootloader ACK & NACK Bytes
+ */
+#define 	BL_ACK					0xA5
+#define 	BL_NACK					0x7F
+
+/*
+ * CRC
+ */
+#define 	VERIFY_CRC_FAIL    		0x01
+#define 	VERIFY_CRC_SUCCESS 		0x00
+
 #endif /* INC_BL_CONFIG_H_ */
