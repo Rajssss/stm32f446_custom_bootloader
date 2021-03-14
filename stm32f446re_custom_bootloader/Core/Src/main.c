@@ -96,16 +96,14 @@ int main(void)
   RetargetInit(UART_DEBUG_PORT);
 #endif
   /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
+	  printf(TAG_D "Jumping to bootloader mode\r\n");
+	  bl_uart_read_data();
+  } else {
+	  printf(TAG_D "Jumping to user application\r\n");
+	  bl_jump_to_user_app();
   }
-  /* USER CODE END 3 */
+  /* USER CODE END 2 */
 }
 
 /**
@@ -302,7 +300,7 @@ static void bl_uart_read_data(void)
 
 		HAL_UART_Receive(UART_CMD_PORT, bl_buffer, 1, HAL_MAX_DELAY);
 		cmd_len = bl_buffer[0];
-		HAL_UART_Receive(UART_CMD_PORT, bl_buffer, cmd_len, HAL_MAX_DELAY);
+		HAL_UART_Receive(UART_CMD_PORT, &bl_buffer[1], cmd_len, HAL_MAX_DELAY);
 
 		switch(bl_buffer[1]) {
 		case BL_GET_VER:
